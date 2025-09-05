@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    // OPEN: free in/out driven by pressure
+    door        { type pressureInletOutletVelocity; value uniform (0 0 0); }
+
+    // SOLIDS
+    walls      { type noSlip; }
+    room       { type noSlip; }
+    human      { type noSlip; }
+    poo        { type noSlip; }
+
+    // OUTLET: vent
+    vent
+    {
+        type                flowRateOutletVelocity;
+        volumetricFlowRate  constant 0.0222;  // m^3/s (80CMH = 80/3600 = 0.0222 m^3/s)
+        value               uniform (0 0 0);
+    }
+
+}
+// ************************************************************************* //

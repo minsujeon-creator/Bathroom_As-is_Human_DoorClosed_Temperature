@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];  // Kelvin
+internalField   uniform 297.15;
+
+boundaryField
+{
+    // OPEN: ambient on inflow; convect out on outflow
+    door
+    {
+        type        inletOutlet;
+        inletValue  uniform 296;         // ambient
+        value       uniform 296;
+    }
+    vent
+    {
+        type        inletOutlet;
+        inletValue  uniform 296;         // ambient
+        value       uniform 296;
+    }
+
+    // SOLIDS (set what you need to drive flow)
+    poo    { type fixedValue;   value uniform 306; } // example: warmer patch
+    human   { type fixedValue;   value uniform 306; } // example: warmer patch
+    //Adiabatic
+    walls  { type zeroGradient; }                    // adiabatic (or fixedValue if known)
+    room   { type zeroGradient; }                    // adiabatic (or fixedValue if known)
+
+}

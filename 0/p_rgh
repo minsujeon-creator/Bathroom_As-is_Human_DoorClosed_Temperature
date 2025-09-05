@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p_rgh;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    // OPEN boundary (to ambient): specify static p=0 (gauge) and let BC convert to p_rgh
+    door   { type fixedValue; value uniform 0; }
+    vent   { type fixedValue; value uniform 0; }
+
+    // SOLIDS: allow wall-normal pressure gradient; buoyancy-consistent
+    walls    { type fixedFluxPressure; value uniform 0; }
+    room   { type fixedFluxPressure; value uniform 0; }
+    human  { type fixedFluxPressure; value uniform 0; }
+    floor   { type fixedFluxPressure; value uniform 0; }
+    poo    { type fixedFluxPressure; value uniform 0; }
+}
+
+
+// ************************************************************************* //

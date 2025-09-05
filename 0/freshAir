@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      freshAir;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+internalField   uniform 0;          // old air = 0
+boundaryField
+{
+    // SOLIDS: no normal flux
+    walls    { type zeroGradient; }
+    room   { type zeroGradient; }
+    human  { type zeroGradient; }
+
+    // OOUTLET: vent
+    vent
+    {
+        type        inletOutlet;
+        inletValue  uniform 0;
+        value       uniform 0;
+    }
+
+    // INLET: zero coming in; convect out
+    door
+    {
+        type        inletOutlet;
+        inletValue  uniform 0;
+        value       uniform 0;
+    }
+
+    
+
+    // SOLIDS: no normal flux
+    poo    { type zeroGradient; }
+
+}

@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      alphat;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -1 0 0 0 0];   // m2/s
+internalField   uniform 0;
+
+boundaryField
+{
+    walls   { type calculated; value uniform 0; }
+    room    { type calculated; value uniform 0; }
+    human   { type calculated; value uniform 0; }
+    vent  { type calculated; value uniform 0; }
+    door   { type calculated; value uniform 0; }
+    poo    { type calculated; value uniform 0; }
+}
+
+/*
+// open boundary stays calculated
+    walls   { type calculated; value uniform 0; }
+
+    // solid walls use the v2412 heat-flux wall function
+    vent    { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    human   { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    toilet  { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    floor   { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+
+    symmCut { type symmetryPlane; }
+*/
+// ************************************************************************* //
