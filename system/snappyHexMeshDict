@@ -1,0 +1,252 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh true;
+snap            true;
+addLayers       false;
+
+geometry
+{
+    //door.stl{ type triSurfaceMesh; name door;}
+    //vent.stl{ type triSurfaceMesh; name vent;}
+    room.stl{ type triSurfaceMesh; name room;}
+    human.stl{ type triSurfaceMesh; name human; }
+    //toilet.stl{ type triSurfaceMesh; name toilet;}
+    refBoxPoo
+    {
+        type searchableBox;
+        min (0.2 0.85 0.435);
+        max (0.5 1.15 0.465);
+    }
+        /////
+    refBoxDoor
+    {
+        type searchableBox;
+        min (-0.105 -0.2 -0.05);
+        max (0.895 0.2 2.225);
+    }
+    /* =========================
+    OUTER HALO (5 cm)
+    ========================= */
+
+    refBoxDoorLeft_outer
+    {
+        type searchableBox;
+        min (-0.025 -0.05  0.000);
+        max ( 0.075  0.05  2.200);
+    }
+
+    refBoxDoorRight_outer
+    {
+        type searchableBox;
+        min (0.715 -0.05  0.000);
+        max (0.815  0.05  2.200);
+    }
+
+    refBoxDoorBottom_outer
+    {
+        type searchableBox;
+        min (-0.025 -0.05  0.000);
+        max ( 0.815  0.05  0.100);
+    }
+
+    refBoxDoorTop_outer
+    {
+        type searchableBox;
+        min (-0.025 -0.05  2.100);
+        max ( 0.815  0.05  2.200);
+    }
+
+
+    /* =========================
+    INNER HALO (1 cm)
+    ========================= */
+
+    refBoxDoorLeft_inner
+    {
+        type searchableBox;
+        min (0.015 -0.01  0.040);
+        max (0.035  0.01  2.160);
+    }
+
+    refBoxDoorRight_inner
+    {
+        type searchableBox;
+        min (0.755 -0.01  0.040);
+        max (0.775  0.01  2.160);
+    }
+
+    refBoxDoorBottom_inner
+    {
+        type searchableBox;
+        min (0.015 -0.01  0.040);
+        max (0.775  0.01  0.060);
+    }
+
+    refBoxDoorTop_inner
+    {
+        type searchableBox;
+        min (0.015 -0.01  2.140);
+        max (0.775  0.01  2.160);
+    }
+
+
+    /////
+    refBoxVent
+    {
+        type searchableBox;
+        min (1.572 0.016 2.0);
+        max (2.072 0.516 2.5);
+    }
+    
+    refBoxToilet
+    {
+        type searchableBox;
+        min (0.105 0.8 -0.05);
+        max (0.55 1.3 0.5);
+    }
+
+}
+
+castellatedMeshControls
+{
+    maxLocalCells 100000;
+    maxGlobalCells 8000000;
+    minRefinementCells 0;
+    maxLoadUnbalance 0.10;
+    nCellsBetweenLevels 2;
+
+    features
+    (
+
+        //{ file "door.eMesh"; level 0;}
+        //{ file "vent.eMesh"; level 0;}
+        { file "room.eMesh"; level 3;}
+        { file "human.eMesh"; level 3; }
+        //{ file "toilet.eMesh"; level 0;}
+    );
+
+    refinementSurfaces
+    {
+        //door{ level (0 0);}
+        //vent{ level (0 0);}
+        room{ level (0 4);}
+        human{ level (0 4); }
+        //toilet{ level (0 2);}
+    }
+
+    resolveFeatureAngle 30;
+
+    refinementRegions
+    {
+        refBoxPoo
+        {
+            mode   inside;
+            levels ((1e15 3));   // refine everything inside to level 3
+        }
+         refBoxDoor
+        {
+            mode    inside;
+            levels  ((1e15 1));
+        }
+        "(refBoxDoorLeft_outer|refBoxDoorRight_outer|refBoxDoorBottom_outer|refBoxDoorTop_outer)"
+        {
+            mode    inside;
+            levels  ((1e15 3));
+        }
+        "(refBoxDoorLeft_inner|refBoxDoorRight_inner|refBoxDoorBottom_inner|refBoxDoorTop_inner)"
+        {
+            mode    inside;
+            levels  ((1e15 5));
+        }
+        refBoxVent
+        {
+            mode    inside;
+            levels  ((1e15 2));
+        }
+        refBoxToilet
+        {
+            mode    inside;
+            levels  ((1e15 3));
+        }
+    }
+
+    locationInMesh (0.1001 0.001 0.0101);
+    allowFreeStandingZoneFaces false;
+}
+
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance 4.0;
+    nSolveIter 300;
+    nRelaxIter 5;
+    nFeatureSnapIter 10;
+    implicitFeatureSnap true;
+    explicitFeatureSnap false;
+    multiRegionFeatureSnap true;
+}
+
+addLayersControls
+{
+    relativeSizes true;
+
+    layers
+    {
+    }
+
+    expansionRatio 1.0;
+    finalLayerThickness 0.3;
+    minThickness 0.1;
+    nGrow 0;
+    featureAngle 30;
+    nRelaxIter 3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+}
+
+meshQualityControls
+{
+    maxNonOrtho 65;
+    maxBoundarySkewness 20;
+    maxInternalSkewness 4;
+    maxConcave 80;
+    minVol 1e-13;
+    minTetQuality -1;
+    minArea -1;
+    minTwist 0.01;
+    minDeterminant 0.001;
+    minFaceWeight 0.05;
+    minVolRatio 0.01;
+    minTriangleTwist -1;
+    nSmoothScale 4;
+    errorReduction 0.75;
+    relaxed
+    {
+        maxNonOrtho 75;
+    }
+}
+
+mergeTolerance 1e-6;
+
+
+// ************************************************************************* //

@@ -1,0 +1,131 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     buoyantBoussinesqSimpleFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime; //endTime noWriteNow writeNow nextWrite
+
+endTime         20000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   100;
+
+purgeWrite      1;
+
+writeFormat     ascii;
+
+writePrecision  7;
+
+writeCompression no;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           1;
+
+maxDeltaT       1;
+
+functions
+{
+    NH3_transport
+  {
+    type            scalarTransport;
+    libs            ("libsolverFunctionObjects.so");
+    field           NH3;
+
+    // Reuse another field’s schemes (keeps div/grad settings consistent)
+    schemesField    T;
+
+    // Effective diffusivity D = alphaD*nu + alphaDt*nut
+    alphaD          0;          // molecular part via nu (off here)
+    alphaDt         1.4286;     // ~ 1/Sc_t with Sc_t ~ 0.7
+
+    nCorr           1;          // correctors per SIMPLE iter
+
+    writeControl   outputTime;   // write only when the solver writes
+
+    fvOptions
+    {
+      NH3_injection
+      {
+        type        scalarSemiImplicitSource;
+        enabled     true;
+
+        scalarSemiImplicitSourceCoeffs
+        {
+          selectionMode   cellZone;
+          cellZone        pooCells;     // <--- your zone name
+          volumeMode      absolute;          // specify TOTAL kg/s below
+
+          injectionRateSuSp
+          {
+            // Su [kg/m^3/s], Sp [1/s]; with "absolute" we give TOTAL kg/s
+            NH3 (4.26e-10 0);   // total NH3 mass generation = 4.26e-10 kg/s
+          }
+        }
+      }
+    }
+  }
+
+  H2S_transport
+  {
+    type            scalarTransport;
+    libs            ("libsolverFunctionObjects.so");
+    field           H2S;
+    schemesField    T;
+    alphaD          0;
+    alphaDt         1.4286;
+    nCorr           1;
+
+    writeControl   outputTime;   // write only when the solver writes
+
+    fvOptions
+    {
+      H2S_injection
+      {
+        type        scalarSemiImplicitSource;
+        enabled     true;
+
+        scalarSemiImplicitSourceCoeffs
+        {
+          selectionMode   cellZone;
+          cellZone        pooCells;
+          volumeMode      absolute;          // TOTAL kg/s below
+
+          injectionRateSuSp
+          {
+            H2S (8.508e-10 0);  // total H2S mass generation = 8.508e-10 kg/s
+          }
+        }
+      }
+    }
+  }
+}
+
+
+// ************************************************************************* //

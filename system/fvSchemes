@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+
+    // Momentum & turbulence
+    div(phi,U)                      Gauss linearUpwind grad(U);   // or: bounded Gauss limitedLinearV 1;
+    div(U)                          Gauss linear;                 // not used for incompressible; OK to keep
+    div(phi,k)                      Gauss linearUpwind grad(U);
+    div(phi,omega)                  Gauss linearUpwind grad(U);
+
+    // Temperature
+    div(phi,T)                      Gauss upwind;                 // or: bounded Gauss limitedLinear 1;
+
+    // Tracer (freshAir)
+    div(phi,freshAir)               Gauss upwind;                 // or: bounded Gauss limitedLinear 1;
+
+    // Gas
+    div(phi,H2S)                    Gauss limitedLinear 1;        //Gauss upwind;or: bounded Gauss limitedLinear 1;
+    div(phi,NH3)                    Gauss limitedLinear 1;        //Gauss upwind;or: bounded Gauss limitedLinear 1;
+
+    // Viscous term
+    div((nuEff*dev2(T(grad(U)))))   Gauss linear;
+}
+
+laplacianSchemes
+{
+    default                         Gauss linear corrected;
+
+    // Make these explicit (safer on non-orthogonal meshes)
+    laplacian(alphaEff,T)           Gauss linear corrected;
+
+    laplacian(D,freshAir)           Gauss linear corrected;
+    laplacian(D,H2S)                Gauss linear corrected;
+    laplacian(D,NH3)                Gauss linear corrected;
+
+    // If (and only if) you really have a field named "Deff", use this instead:
+    // laplacian(Deff,freshAir)     Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method          meshWave;
+}
+
+
+// ************************************************************************* //
